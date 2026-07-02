@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASTROCOPA VAR — Mural Nova Promotora</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,900&display=swap" rel="stylesheet">
+<style>
+/* Identidade visual reaproveitada de astrocopa_dashboard.html (bolão AstroCopa 2026) */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--verde:#00e676;--escuro:#0a2e1a;--azul:#1b4de0;--teal:#4cb8b6;--amarelo:#ffd400;--ouro:#ffd700;--grad:linear-gradient(135deg,#00e64d 0%,#00d4aa 45%,#00bcd4 100%)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--grad);min-height:100vh;padding:14px;position:relative;overflow-x:hidden}
+
+/* vinheta de "tela de TV" + estrelas douradas cintilantes no fundo */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.28) 100%)}
+.stars-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.star{position:absolute;color:var(--ouro);text-shadow:0 0 4px #fff9c4,0 0 10px var(--ouro),0 0 18px #ffb300;animation:twinkle 3.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.25) rotate(20deg)}}
+
+.top-bar,.demo-banner,main,.cta-wrap,.modal-overlay{position:relative;z-index:1}
+
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:flex-end;gap:8px}
+.logo-txt{font-size:38px;font-weight:900;color:var(--escuro);letter-spacing:-1px;line-height:1;font-style:italic;font-family:'Barlow Condensed',sans-serif}
+.logo-ball{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--escuro);vertical-align:middle;margin:0 -1px;position:relative;top:-2px}
+.logo-var{color:var(--azul);margin-left:4px}
+.logo-meta{display:flex;flex-direction:column;gap:3px;padding-bottom:3px}
+.logo-year{font-size:9px;font-weight:800;color:var(--escuro);letter-spacing:5px;opacity:.7}
+.logo-nova{font-size:8px;font-weight:800;color:#fff;letter-spacing:2px;background:var(--escuro);padding:2px 7px;border-radius:3px}
+.top-right{display:flex;align-items:center;gap:10px}
+.live-pill{display:inline-flex;align-items:center;gap:5px;background:var(--escuro);color:var(--verde);font-size:10px;font-weight:800;letter-spacing:2px;padding:5px 13px;border-radius:20px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:blink 1.2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.group-tag{font-size:10px;font-weight:700;color:var(--escuro);letter-spacing:2px;opacity:.65}
+.ts-tag{font-size:10px;color:var(--escuro);opacity:.6;font-weight:600}
+.refresh-top{font-size:11px;font-weight:800;padding:5px 13px;border-radius:10px;border:2px solid var(--escuro);background:rgba(255,255,255,.85);color:var(--escuro);cursor:pointer;transition:all .15s}
+.refresh-top:hover{background:var(--escuro);color:var(--verde)}
+.refresh-top:active{transform:scale(.97)}
+.refresh-top.spin{opacity:.5;pointer-events:none}
+
+.demo-banner{max-width:1100px;margin:0 auto 12px;background:#fff3e0;border:2px solid #e65100;color:#7a3b00;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:600;text-align:center}
+.demo-banner code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px}
+
+main{max-width:1100px;margin:0 auto}
+.panel{background:rgba(255,255,255,.97);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-height:60vh;box-shadow:0 0 0 3px var(--escuro),0 0 0 6px var(--ouro),0 25px 60px rgba(0,0,0,.35)}
+.panel-head{background:var(--escuro);padding:11px 15px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-title{font-size:10px;font-weight:800;color:var(--verde);letter-spacing:2px;text-transform:uppercase}
+.panel-sub{font-size:10px;color:#4db6ac}
+.panel-body{padding:16px;flex:1}
+
+.filter-bar{display:flex;gap:8px;margin-bottom:14px}
+.filter-bar .fwrap{flex:1;position:relative}
+.filter-bar input{width:100%;border:1px solid #cfd8dc;border-radius:10px;padding:10px 14px 10px 34px;font-size:13px;font-family:inherit}
+.filter-bar input:focus{outline:2px solid var(--verde);border-color:var(--verde)}
+.filter-bar .ficon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.55;pointer-events:none}
+.filter-clear{background:var(--escuro);color:var(--verde);border:none;border-radius:10px;padding:0 16px;font-size:11px;font-weight:800;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
+.filter-clear:disabled{opacity:.35;cursor:default}
+.filter-hint{font-size:11px;color:#607d8b;margin:-6px 0 12px 2px}
+
+#empty-state{padding:3rem 1rem;text-align:center;color:#90a4ae;font-size:13px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:12px}
+.card{background:#f8fffe;border:1px solid #e0f2f1;border-top:4px solid var(--teal);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;animation:pop .35s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card .dest{background:var(--escuro);color:var(--amarelo);font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:9px 14px;text-align:center}
+.card .dest .lbl{display:block;font-size:8px;color:var(--verde);letter-spacing:2px;margin-bottom:2px;opacity:.85}
+.card .msg{font-size:14px;font-weight:600;line-height:1.55;color:#1a1a1a;word-wrap:break-word;flex:1;padding:14px}
+.card .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed #dcecea;padding:10px 14px;background:#fbfffe}
+.card .sender{display:flex;align-items:center;gap:8px;min-width:0}
+.card .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.card .who{display:flex;flex-direction:column;gap:1px;min-width:0}
+.card .de-line{display:flex;align-items:baseline;gap:5px;min-width:0}
+.card .de-lbl{font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--azul);opacity:.85;flex-shrink:0}
+.card .nome{font-size:11px;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .setor{font-size:9px;color:#90a4ae}
+.card .time{font-size:9px;color:#90a4ae;flex-shrink:0}
+
+.cta-wrap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5}
+.cta{background:var(--escuro);color:var(--verde);font-weight:800;border:none;cursor:pointer;padding:14px 30px;border-radius:999px;font-size:13px;letter-spacing:1px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
+.cta:hover{transform:scale(1.04)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(10,46,26,.55);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;max-width:420px;width:100%;overflow:hidden}
+.modal-head{background:var(--escuro);padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.modal-head span{font-size:11px;font-weight:800;color:var(--verde);letter-spacing:2px;text-transform:uppercase}
+.modal-close{background:none;border:none;color:#fff;font-size:16px;cursor:pointer;line-height:1}
+.modal-body{padding:18px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;color:#455a64;margin-bottom:5px}
+.field input,.field textarea{width:100%;border:1px solid #cfd8dc;border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit;resize:vertical}
+.field input:focus,.field textarea:focus{outline:2px solid var(--verde);border-color:var(--verde)}
+.form-msg{font-size:12px;font-weight:600;margin-bottom:10px;padding:8px 10px;border-radius:8px;display:none}
+.form-msg.ok{display:block;background:#e8f5e9;color:#1b5e20}
+.form-msg.err{display:block;background:#ffebee;color:#c62828}
+.modal-submit{width:100%;background:var(--escuro);color:var(--verde);font-weight:800;border:none;padding:12px;border-radius:10px;font-size:13px;letter-spacing:1px;cursor:pointer}
+.modal-submit:disabled{opacity:.6;cursor:default}
+
+.success-box{text-align:center;padding:6px 0 4px}
+.success-icon{font-size:40px;margin-bottom:10px}
+.success-title{font-size:17px;font-weight:800;color:#1b5e20;margin-bottom:8px}
+.success-text{font-size:13px;color:#455a64;margin-bottom:18px;line-height:1.55}
+.link-btn{display:block;width:100%;text-align:center;background:none;border:none;color:var(--azul);font-size:12px;font-weight:700;cursor:pointer;margin-top:12px;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="stars-layer" id="stars-layer"></div>
+
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-txt">ASTR<span class="logo-ball"></span>C<span class="logo-ball"></span>PA<span class="logo-var">VAR</span></div>
+    <div class="logo-meta">
+      <span class="logo-year">2 0 2 6</span>
+      <span class="logo-nova">NOVA</span>
+    </div>
+  </div>
+  <div class="top-right">
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <span class="live-pill"><span class="dot"></span>TRANSMISSÃO AO VIVO</span>
+      <span class="group-tag">Mensagens da equipe · Nova Promotora</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <span class="ts-tag" id="ts">Conectando...</span>
+      <button class="refresh-top" id="refresh-btn" onclick="fetchMessages()">⟳ Atualizar</button>
+    </div>
+  </div>
+</div>
+
+<div id="demo-banner" class="demo-banner" style="display:none;">
+  ⚠️ Modo demonstração — configure <code>APPS_SCRIPT_URL</code>
+  no final do <code>index.html</code> para exibir e receber mensagens de verdade (veja INSTRUCOES.md).
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Painel VAR · Mensagens ao vivo</span>
+      <span class="panel-sub" id="panel-sub">Carregando...</span>
+    </div>
+    <div class="panel-body">
+      <div class="filter-bar">
+        <div class="fwrap">
+          <span class="ficon">🔍</span>
+          <input id="f-filtro" type="text" placeholder="Buscar pelo nome do destinatário...">
+        </div>
+        <button class="filter-clear" id="filter-clear-btn" type="button" disabled>Limpar</button>
+      </div>
+      <div class="filter-hint" id="filter-hint" style="display:none;"></div>
+      <div id="empty-state" style="display:none;">Nenhuma mensagem por aqui ainda — seja o primeiro a torcer! ⚽</div>
+      <div id="grid" class="grid"></div>
+    </div>
+  </div>
+</main>
+
+<div class="cta-wrap">
+  <button id="cta-btn" class="cta" type="button">📣 Enviar minha mensagem</button>
+</div>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>Enviar mensagem</span>
+      <button class="modal-close" id="modal-close" type="button" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="form-msg" class="form-msg"></div>
+      <form id="msg-form">
+        <div class="field">
+          <label for="f-nome">Seu nome *</label>
+          <input id="f-nome" name="nome" type="text" maxlength="100" required>
+        </div>
+        <div class="field">
+          <label for="f-destinatario">Destinatário (para quem é a mensagem) *</label>
+          <input id="f-destinatario" name="destinatario" type="text" maxlength="100" required>
+        </div>
+        <div class="field">
+          <label for="f-setor">Setor (opcional)</label>
+          <input id="f-setor" name="setor" type="text" maxlength="100">
+        </div>
+        <div class="field">
+          <label for="f-mensagem">Mensagem *</label>
+          <textarea id="f-mensagem" name="mensagem" rows="4" maxlength="500" required></textarea>
+        </div>
+        <button id="modal-submit" class="modal-submit" type="submit">Enviar</button>
+      </form>
+      <div id="success-box" class="success-box" style="display:none;">
+        <div class="success-icon">✅</div>
+        <p class="success-title">Solicitação feita!</p>
+        <p class="success-text">Sua mensagem está em fase de aprovação. Assim que for aprovada, ela aparece no mural.</p>
+        <button id="success-close" class="modal-submit" type="button">Fechar</button>
+        <button id="success-again" class="link-btn" type="button">Enviar outra mensagem</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================================================================
+   CONFIGURAÇÃO — preencha estes dois links depois de seguir o INSTRUCOES.md
+   ======================================================================= */
+const CONFIG = {
+  // Cole aqui a URL do Web App publicado no Google Apps Script (doGet + doPost)
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw0KVPxSM1-tyByiSVgwWuyvgpGMeI0gxB3BzQxcgpWx8lEYDZaUgOD8dSshSAUrZeoVQ/exec',
+  // Intervalo de atualização automática (ms)
+  POLL_INTERVAL_MS: 20000
+};
+
+const DEMO_MESSAGES = [
+  { nome: 'Ana Souza', destinatario: 'Time Comercial', setor: 'Comercial', mensagem: 'Vamos com tudo, Nova Promotora! Que venha a AstroCopa! 🏆', timestamp: new Date().toISOString() },
+  { nome: 'Carlos Lima', destinatario: 'Beatriz Alves', setor: 'Operações', mensagem: 'Time show, torcida melhor ainda! ⚽🔥', timestamp: new Date(Date.now()-3600000).toISOString() },
+  { nome: 'Beatriz Alves', destinatario: 'Equipe ASCOM', setor: 'ASCOM', mensagem: 'Preparando as artes da campanha, bora torcer juntos! 🌟', timestamp: new Date(Date.now()-7200000).toISOString() }
+];
+
+const COLORS = ['#dff7f6','#e3f9ea','#e3ebfd','#fff8dc'];
+const TCOLORS= ['#0e5f5c','#0a2e1a','#12309e','#8a6d00'];
+function avColor(i){ return { bg: COLORS[i%COLORS.length], fg: TCOLORS[i%TCOLORS.length] }; }
+function initials(name=''){ return name.replace(/[^\w\s]/g,'').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().substring(0,2) || '?'; }
+function normalize(s=''){ return s.toString().toLowerCase().normalize('NFD').replace(/[^\x00-\x7F]/g,'').trim(); }
+
+const gridEl = document.getElementById('grid');
+const emptyEl = document.getElementById('empty-state');
+const demoBanner = document.getElementById('demo-banner');
+const ctaBtn = document.getElementById('cta-btn');
+const panelSub = document.getElementById('panel-sub');
+const refreshBtn = document.getElementById('refresh-btn');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalClose = document.getElementById('modal-close');
+const msgForm = document.getElementById('msg-form');
+const modalSubmit = document.getElementById('modal-submit');
+const formMsg = document.getElementById('form-msg');
+const successBox = document.getElementById('success-box');
+const successClose = document.getElementById('success-close');
+const successAgain = document.getElementById('success-again');
+const filterInput = document.getElementById('f-filtro');
+const filterClearBtn = document.getElementById('filter-clear-btn');
+const filterHint = document.getElementById('filter-hint');
+
+let currentMessages = [];
+
+/* ---- estrelas douradas cintilantes (decorativo, gerado uma vez) ---- */
+(function spawnStars(){
+  const layer = document.getElementById('stars-layer');
+  const n = 22;
+  for (let i = 0; i < n; i++){
+    const s = document.createElement('span');
+    s.className = 'star';
+    s.textContent = '★';
+    s.style.left = (Math.random()*100) + '%';
+    s.style.top = (Math.random()*100) + '%';
+    s.style.fontSize = (8 + Math.random()*14) + 'px';
+    s.style.animationDelay = (Math.random()*3.2) + 's';
+    s.style.animationDuration = (2.4 + Math.random()*2.2) + 's';
+    layer.appendChild(s);
+  }
+})();
+
+function isConfigured(){
+  return CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.startsWith('COLE_AQUI');
+}
+
+function showForm(){
+  successBox.style.display = 'none';
+  msgForm.style.display = 'block';
+  formMsg.className = 'form-msg';
+  formMsg.textContent = '';
+  msgForm.reset();
+}
+
+function openModal(){
+  showForm();
+  modalOverlay.classList.add('open');
+}
+function closeModal(){ modalOverlay.classList.remove('open'); }
+
+ctaBtn.addEventListener('click', openModal);
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+successClose.addEventListener('click', closeModal);
+successAgain.addEventListener('click', showForm);
+
+msgForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!isConfigured()){
+    formMsg.className = 'form-msg err';
+    formMsg.textContent = 'Mural em modo demonstração — configure APPS_SCRIPT_URL em index.html para receber mensagens de verdade.';
+    return;
+  }
+
+  const body = new URLSearchParams(new FormData(msgForm));
+  modalSubmit.disabled = true;
+  modalSubmit.textContent = 'Enviando...';
+
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (!res.ok || data.ok === false) throw new Error(data.erro || 'Falha ao enviar');
+
+    msgForm.style.display = 'none';
+    successBox.style.display = 'block';
+  }catch(err){
+    console.error('Erro ao enviar mensagem:', err);
+    formMsg.className = 'form-msg err';
+    formMsg.textContent = 'Não foi possível enviar agora. Tente novamente em instantes.';
+  }
+
+  modalSubmit.disabled = false;
+  modalSubmit.textContent = 'Enviar';
+});
+
+function formatTime(ts){
+  try{
+    const d = new Date(ts);
+    return d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+  }catch(e){ return ''; }
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+const BORDER_COLORS = ['#4cb8b6','#1b4de0','#ffd400','#00e676'];
+
+function renderGrid(messages){
+  if (!messages || messages.length === 0){
+    gridEl.innerHTML = '';
+    return;
+  }
+  gridEl.innerHTML = messages.map((msg,i) => {
+    const c = avColor(i);
+    const borderColor = BORDER_COLORS[i % BORDER_COLORS.length];
+    return `<div class="card" style="border-top-color:${borderColor}">
+      <div class="dest"><span class="lbl">Para</span>${escapeHtml(msg.destinatario || 'Equipe')}</div>
+      <p class="msg">${escapeHtml(msg.mensagem || '')}</p>
+      <div class="foot">
+        <div class="sender">
+          <div class="av" style="background:${c.bg};color:${c.fg}">${initials(msg.nome)}</div>
+          <div class="who">
+            <span class="de-line"><span class="de-lbl">De</span><span class="nome">${escapeHtml(msg.nome || 'Anônimo')}</span></span>
+            ${msg.setor ? `<span class="setor">${escapeHtml(msg.setor)}</span>` : ''}
+          </div>
+        </div>
+        <span class="time">${formatTime(msg.timestamp)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilter(){
+  const term = normalize(filterInput.value);
+  filterClearBtn.disabled = !term;
+
+  const sorted = [...currentMessages].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const filtered = term ? sorted.filter(m => normalize(m.destinatario).includes(term)) : sorted;
+
+  if (term){
+    filterHint.style.display = 'block';
+    filterHint.textContent = filtered.length
+      ? `Mostrando só as mensagens para "${filterInput.value.trim()}" — esse filtro é só na sua tela.`
+      : `Nenhuma mensagem encontrada para "${filterInput.value.trim()}".`;
+  } else {
+    filterHint.style.display = 'none';
+  }
+
+  if (filtered.length === 0){
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = term ? 'Nenhuma mensagem encontrada com esse nome.' : 'Nenhuma mensagem por aqui ainda — seja o primeiro a torcer! ⚽';
+    panelSub.textContent = term ? '0 mensagens filtradas' : '0 mensagens';
+  } else {
+    emptyEl.style.display = 'none';
+    panelSub.textContent = (term ? `${filtered.length} de ${currentMessages.length}` : filtered.length) +
+      (filtered.length === 1 && !term ? ' mensagem' : ' mensagens');
+  }
+  renderGrid(filtered);
+}
+
+filterInput.addEventListener('input', applyFilter);
+filterClearBtn.addEventListener('click', () => { filterInput.value = ''; applyFilter(); filterInput.focus(); });
+
+function render(messages){
+  currentMessages = messages || [];
+  applyFilter();
+}
+
+function stamp(){
+  const n = new Date();
+  document.getElementById('ts').textContent =
+    n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) + ' · ' + n.toLocaleDateString('pt-BR');
+}
+
+async function fetchMessages(){
+  refreshBtn.classList.add('spin');
+  if (!isConfigured()){
+    demoBanner.style.display = 'block';
+    render(DEMO_MESSAGES);
+    stamp();
+    refreshBtn.classList.remove('spin');
+    return;
+  }
+  demoBanner.style.display = 'none';
+  try{
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Falha ao buscar mensagens: ' + res.status);
+    const data = await res.json();
+    render(data);
+  }catch(err){
+    console.error('Erro ao atualizar mural:', err);
+    panelSub.textContent = 'erro ao carregar';
+  }
+  stamp();
+  refreshBtn.classList.remove('spin');
+}
+
+fetchMessages();
+setInterval(fetchMessages, CONFIG.POLL_INTERVAL_MS);
+</script>
+</body>
+</html>
