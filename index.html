@@ -19,11 +19,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 .top-bar,.demo-banner,main,.cta-wrap,.modal-overlay{position:relative;z-index:1}
 
-.top-bar{display:flex;align-items:center;justify-content:flex-start;margin-bottom:4px;padding:0 2px}
-.logo{display:flex;align-items:center;gap:8px}
+.top-bar{display:flex;align-items:center;justify-content:flex-start;margin-bottom:12px;padding:0 2px}
+.logo{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .logo-img{height:50px;width:auto;display:block}
 
-.var-title{text-align:center;color:var(--amarelo);font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(48px,9vw,140px);line-height:1;letter-spacing:2px;margin:0 0 12px;text-shadow:0 6px 0 var(--escuro),0 10px 24px rgba(0,0,0,.35)}
+.var-title{flex:1;text-align:center;color:var(--amarelo);font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(28px,4vw,56px);line-height:1;letter-spacing:2px;margin:0;text-shadow:0 3px 0 var(--escuro),0 6px 14px rgba(0,0,0,.35)}
 
 .demo-banner{max-width:1100px;margin:0 auto 12px;background:#fff3e0;border:2px solid #e65100;color:#7a3b00;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:600;text-align:center}
 .demo-banner code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px}
@@ -98,8 +98,8 @@ main{max-width:none;width:100%;margin:0}
   <div class="logo">
     <img src="logo.png" alt="ASTROCOPA" class="logo-img">
   </div>
+  <h1 class="var-title">VAR</h1>
 </div>
-<h1 class="var-title">VAR</h1>
 
 <div id="demo-banner" class="demo-banner" style="display:none;">
   ⚠️ Modo demonstração — configure <code>APPS_SCRIPT_URL</code>
