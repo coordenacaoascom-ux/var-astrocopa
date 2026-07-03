@@ -19,6 +19,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 .top-bar,.demo-banner,main,.cta-wrap,.modal-overlay{position:relative;z-index:1}
 
+.mascot{position:fixed;left:4px;bottom:0;height:22vh;max-height:230px;z-index:3;pointer-events:none;opacity:.9;
+  -webkit-mask-image:radial-gradient(ellipse 58% 72% at 50% 52%, black 50%, transparent 94%);
+  mask-image:radial-gradient(ellipse 58% 72% at 50% 52%, black 50%, transparent 94%);
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.3))}
+@media (max-width:700px){.mascot{height:11vh;max-height:100px;opacity:.55;left:0}}
+
 .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;flex-wrap:wrap;gap:10px}
 .logo{display:flex;align-items:flex-end;gap:8px}
 .logo-txt{font-size:38px;font-weight:900;color:var(--escuro);letter-spacing:-1px;line-height:1;font-style:italic;font-family:'Barlow Condensed',sans-serif}
@@ -41,8 +47,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .demo-banner{max-width:1100px;margin:0 auto 12px;background:#fff3e0;border:2px solid #e65100;color:#7a3b00;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:600;text-align:center}
 .demo-banner code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px}
 
-main{max-width:1100px;margin:0 auto}
-.panel{background:rgba(255,255,255,.97);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-height:60vh;box-shadow:0 0 0 3px var(--escuro),0 0 0 6px var(--ouro),0 25px 60px rgba(0,0,0,.35)}
+main{max-width:none;width:100%;margin:0}
+.panel{background:rgba(255,255,255,.97);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-height:calc(100vh - 28px);box-shadow:0 0 0 3px var(--escuro),0 0 0 6px var(--ouro),0 25px 60px rgba(0,0,0,.35)}
 .panel-head{background:var(--escuro);padding:11px 15px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .panel-title{font-size:10px;font-weight:800;color:var(--verde);letter-spacing:2px;text-transform:uppercase}
 .panel-sub{font-size:10px;color:#4db6ac}
@@ -106,6 +112,7 @@ main{max-width:1100px;margin:0 auto}
 <body>
 
 <div class="stars-layer" id="stars-layer"></div>
+<img class="mascot" src="astronauta.png" alt="" />
 
 <div class="top-bar">
   <div class="logo">
@@ -187,7 +194,7 @@ main{max-width:1100px;margin:0 auto}
       <div id="success-box" class="success-box" style="display:none;">
         <div class="success-icon">✅</div>
         <p class="success-title">Solicitação feita!</p>
-        <p class="success-text">Sua mensagem está em fase de aprovação. Assim que for aprovada, ela aparece no mural.</p>
+        <p class="success-text">Sua mensagem está em fase de aprovação. Assim que for aprovada, ela aparecerá no mural.</p>
         <button id="success-close" class="modal-submit" type="button">Fechar</button>
         <button id="success-again" class="link-btn" type="button">Enviar outra mensagem</button>
       </div>
