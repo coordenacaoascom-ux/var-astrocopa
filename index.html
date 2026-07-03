@@ -17,14 +17,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .star{position:absolute;color:var(--ouro);text-shadow:0 0 4px #fff9c4,0 0 10px var(--ouro),0 0 18px #ffb300;animation:twinkle 3.2s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.25) rotate(20deg)}}
 
-/* bolas de futebol subindo por tras do mural (z-index 0 = atras do painel) */
-.balls-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.ball{position:absolute;bottom:-90px;font-size:44px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));animation:floatUp linear infinite}
-@keyframes floatUp{
-  0%{transform:translateY(0) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  90%{opacity:1}
-  100%{transform:translateY(-110vh) rotate(360deg);opacity:0}
+/* bolas de futebol na faixa do topo (perto das estrelas), atras do mural */
+.balls-layer{position:absolute;top:0;left:0;right:0;height:150px;overflow:visible;pointer-events:none;z-index:0}
+.ball{position:absolute;line-height:1;filter:drop-shadow(0 5px 9px rgba(0,0,0,.3));animation:ballBob ease-in-out infinite}
+@keyframes ballBob{
+  0%,100%{transform:translateY(0) rotate(-12deg)}
+  50%{transform:translateY(-10px) rotate(12deg)}
 }
 
 .top-bar,.demo-banner,main,.cta-wrap,.modal-overlay{position:relative;z-index:1}
@@ -239,18 +237,19 @@ let currentMessages = [];
   }
 })();
 
-/* ---- bolas de futebol subindo por tras do mural ---- */
+/* ---- bolas de futebol na faixa do topo, perto das estrelas ---- */
 (function spawnBalls(){
   const layer = document.getElementById('balls-layer');
-  const n = 10;
+  const n = 7;
   for (let i = 0; i < n; i++){
     const b = document.createElement('span');
     b.className = 'ball';
     b.textContent = '⚽';
-    b.style.left = (2 + Math.random()*96) + '%';
-    b.style.fontSize = (26 + Math.random()*30) + 'px';
-    b.style.animationDuration = (9 + Math.random()*9) + 's';
-    b.style.animationDelay = (Math.random()*12) + 's';
+    b.style.left = (3 + Math.random()*92) + '%';
+    b.style.top = (Math.random()*95) + 'px';
+    b.style.fontSize = (22 + Math.random()*24) + 'px';
+    b.style.animationDuration = (2.6 + Math.random()*2.4) + 's';
+    b.style.animationDelay = (Math.random()*2.5) + 's';
     layer.appendChild(b);
   }
 })();
