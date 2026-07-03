@@ -17,13 +17,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .star{position:absolute;color:var(--ouro);text-shadow:0 0 4px #fff9c4,0 0 10px var(--ouro),0 0 18px #ffb300;animation:twinkle 3.2s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.7) rotate(0deg)}50%{opacity:1;transform:scale(1.25) rotate(20deg)}}
 
+/* bolas de futebol subindo por tras do mural (z-index 0 = atras do painel) */
+.balls-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.ball{position:absolute;bottom:-90px;font-size:44px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));animation:floatUp linear infinite}
+@keyframes floatUp{
+  0%{transform:translateY(0) rotate(0deg);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(-110vh) rotate(360deg);opacity:0}
+}
+
 .top-bar,.demo-banner,main,.cta-wrap,.modal-overlay{position:relative;z-index:1}
 
 .top-bar{display:flex;align-items:center;justify-content:flex-start;margin-bottom:12px;padding:0 2px}
 .logo{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .logo-img{height:50px;width:auto;display:block}
 
-.var-title{flex:1;text-align:center;color:var(--amarelo);font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(28px,4vw,56px);line-height:1;letter-spacing:2px;margin:0;text-shadow:0 3px 0 var(--escuro),0 6px 14px rgba(0,0,0,.35)}
+.var-title{flex:1;text-align:center;color:var(--amarelo);font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:900;font-size:clamp(28px,4vw,56px);line-height:.7;letter-spacing:2px;margin:0;text-shadow:0 3px 0 var(--escuro),0 6px 14px rgba(0,0,0,.35)}
 
 .demo-banner{max-width:1100px;margin:0 auto 12px;background:#fff3e0;border:2px solid #e65100;color:#7a3b00;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:600;text-align:center}
 .demo-banner code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px}
@@ -93,6 +103,7 @@ main{max-width:none;width:100%;margin:0}
 <body>
 
 <div class="stars-layer" id="stars-layer"></div>
+<div class="balls-layer" id="balls-layer"></div>
 
 <div class="top-bar">
   <div class="logo">
@@ -225,6 +236,22 @@ let currentMessages = [];
     s.style.animationDelay = (Math.random()*3.2) + 's';
     s.style.animationDuration = (2.4 + Math.random()*2.2) + 's';
     layer.appendChild(s);
+  }
+})();
+
+/* ---- bolas de futebol subindo por tras do mural ---- */
+(function spawnBalls(){
+  const layer = document.getElementById('balls-layer');
+  const n = 10;
+  for (let i = 0; i < n; i++){
+    const b = document.createElement('span');
+    b.className = 'ball';
+    b.textContent = '⚽';
+    b.style.left = (2 + Math.random()*96) + '%';
+    b.style.fontSize = (26 + Math.random()*30) + 'px';
+    b.style.animationDuration = (9 + Math.random()*9) + 's';
+    b.style.animationDelay = (Math.random()*12) + 's';
+    layer.appendChild(b);
   }
 })();
 
