@@ -98,6 +98,8 @@ main{max-width:none;width:100%;margin:0}
 .ac-item:last-child{border-bottom:none}
 .ac-item small{color:#5a8f7a;font-size:11px}
 .ac-item:hover,.ac-item.active{background:#e3f9ea}
+.ac-item.ac-setor{font-weight:800;color:var(--escuro);background:#f2fbf5}
+.ac-item.ac-setor:hover,.ac-item.ac-setor.active{background:#d6f5e0}
 .ac-empty{padding:9px 12px;font-size:12px;color:#90a4ae}
 </style>
 </head>
@@ -236,35 +238,55 @@ const COLABS = (window.COLABORADORES || []).map(c => ({ nome: c[0], setor: c[1] 
 const colabPorNome = {};
 COLABS.forEach(c => { colabPorNome[c.nome.toLowerCase()] = c; });
 
-function nomeValido(v){ return !!colabPorNome[(v||'').trim().toLowerCase()]; }
 function normNome(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[^\x00-\x7F]/g,''); }
 
+// setores distintos (pra poder mandar pro setor inteiro)
+const SETORES = [...new Set(COLABS.map(c => c.setor).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt'));
+const setorPorNorm = {};
+SETORES.forEach(s => { setorPorNorm[normNome(s)] = s; });
+
+function nomeValido(v){ return !!colabPorNome[(v||'').trim().toLowerCase()]; }
+function ehSetor(v){ return !!setorPorNorm[normNome((v||'').trim())]; }
+function destinatarioValido(v){ return nomeValido(v) || ehSetor(v); }
+
+// setor do destinatário: se for uma pessoa, pega o setor dela; se for um setor inteiro, deixa vazio
 function atualizarSetor(){
   const c = colabPorNome[(destInput.value||'').trim().toLowerCase()];
   setorInput.value = c ? c.setor : '';
 }
 
+function combinaTermo(texto, term){
+  const n = normNome(texto);
+  return n.startsWith(term) || n.split(/\s+/).some(w => w.startsWith(term));
+}
+
 /* autocompletar: so mostra sugestoes conforme o que a pessoa digita */
-function setupAutocomplete(input, listEl, onPick){
+function setupAutocomplete(input, listEl, opts){
+  opts = opts || {};
   let activeIdx = -1, matches = [];
   function close(){ listEl.classList.remove('open'); listEl.innerHTML=''; activeIdx=-1; matches=[]; }
   function render(){
     const term = normNome(input.value.trim());
     if (term.length < 1){ close(); return; }
-    matches = COLABS.filter(c => {
-      const n = normNome(c.nome);
-      return n.startsWith(term) || n.split(/\s+/).some(w => w.startsWith(term));
-    }).slice(0, 8);
-    if (!matches.length){
-      listEl.innerHTML = '<div class="ac-empty">Nenhum colaborador encontrado</div>';
+    const items = [];
+    if (opts.setores){
+      SETORES.filter(s => combinaTermo(s, term)).slice(0, 4)
+        .forEach(s => items.push({ tipo:'setor', label:s, setor:'' }));
+    }
+    COLABS.filter(c => combinaTermo(c.nome, term)).slice(0, opts.setores ? 6 : 8)
+      .forEach(c => items.push({ tipo:'pessoa', label:c.nome, setor:c.setor }));
+    matches = items;
+    if (!items.length){
+      listEl.innerHTML = '<div class="ac-empty">Nenhum resultado encontrado</div>';
       listEl.classList.add('open'); activeIdx=-1; return;
     }
-    listEl.innerHTML = matches.map((c,i) =>
-      `<div class="ac-item" data-i="${i}">${escapeHtml(c.nome)}${c.setor?` <small>· ${escapeHtml(c.setor)}</small>`:''}</div>`
+    listEl.innerHTML = items.map((it,i) => it.tipo==='setor'
+      ? `<div class="ac-item ac-setor" data-i="${i}">🏢 ${escapeHtml(it.label)} <small>· setor inteiro</small></div>`
+      : `<div class="ac-item" data-i="${i}">${escapeHtml(it.label)}${it.setor?` <small>· ${escapeHtml(it.setor)}</small>`:''}</div>`
     ).join('');
     listEl.classList.add('open'); activeIdx=-1;
   }
-  function pick(c){ input.value = c.nome; close(); if (onPick) onPick(c); }
+  function pick(it){ input.value = it.label; close(); if (opts.onPick) opts.onPick(it); }
   input.addEventListener('input', render);
   input.addEventListener('focus', () => { if (input.value.trim()) render(); });
   input.addEventListener('keydown', (e) => {
@@ -287,7 +309,10 @@ function setupAutocomplete(input, listEl, onPick){
 }
 
 setupAutocomplete(nomeInput, document.getElementById('ac-nome'));
-setupAutocomplete(destInput, document.getElementById('ac-dest'), atualizarSetor);
+setupAutocomplete(destInput, document.getElementById('ac-dest'), { setores:true, onPick: (it) => {
+  if (it.tipo === 'setor'){ setorInput.value=''; }
+  else { setorInput.value = it.setor || ''; }
+}});
 // se editar o destinatario manualmente, mantem o setor coerente
 destInput.addEventListener('input', atualizarSetor);
 
@@ -362,16 +387,22 @@ msgForm.addEventListener('submit', async (e) => {
       nomeInput.focus();
       return;
     }
-    if (!nomeValido(destInput.value)){
+    if (!destinatarioValido(destInput.value)){
       formMsg.className = 'form-msg err';
-      formMsg.textContent = 'Escolha o nome do DESTINATÁRIO na lista que aparece ao digitar.';
+      formMsg.textContent = 'Escolha o DESTINATÁRIO na lista (uma pessoa ou um setor inteiro).';
       destInput.focus();
       return;
     }
-    // normaliza pro padrão exato da lista e garante o setor do destinatário
+    // normaliza pro padrão exato da lista
     nomeInput.value = colabPorNome[nomeInput.value.trim().toLowerCase()].nome;
-    destInput.value = colabPorNome[destInput.value.trim().toLowerCase()].nome;
-    atualizarSetor();
+    if (nomeValido(destInput.value)){
+      destInput.value = colabPorNome[destInput.value.trim().toLowerCase()].nome;
+      atualizarSetor();
+    } else {
+      // destinatário é um setor inteiro
+      destInput.value = setorPorNorm[normNome(destInput.value.trim())];
+      setorInput.value = '';
+    }
   }
 
   const body = new URLSearchParams(new FormData(msgForm));
@@ -420,8 +451,10 @@ function renderGrid(messages){
     const borderColor = BORDER_COLORS[i % BORDER_COLORS.length];
     const remetente = colabPorNome[(msg.nome||'').trim().toLowerCase()];
     const setorRemetente = remetente ? remetente.setor : '';
+    const destEhSetor = ehSetor(msg.destinatario);
+    const subDest = destEhSetor ? 'setor inteiro' : (msg.setor || '');
     return `<div class="card" style="border-top-color:${borderColor}">
-      <div class="dest"><span class="lbl">Para</span>${escapeHtml(msg.destinatario || 'Equipe')}${msg.setor ? `<span class="dest-setor">${escapeHtml(msg.setor)}</span>` : ''}</div>
+      <div class="dest"><span class="lbl">${destEhSetor ? 'Para o setor' : 'Para'}</span>${escapeHtml(msg.destinatario || 'Equipe')}${subDest ? `<span class="dest-setor">${escapeHtml(subDest)}</span>` : ''}</div>
       <p class="msg">${escapeHtml(msg.mensagem || '')}</p>
       <div class="foot">
         <div class="sender">
