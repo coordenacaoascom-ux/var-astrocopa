@@ -322,7 +322,6 @@ function renderGrid(messages){
       <p class="msg">${escapeHtml(msg.mensagem || '')}</p>
       <div class="foot">
         <div class="sender">
-          <div class="av" style="background:${c.bg};color:${c.fg}">${initials(msg.nome)}</div>
           <div class="who">
             <span class="de-line"><span class="de-lbl">De</span><span class="nome">${escapeHtml(msg.nome || 'Anônimo')}</span></span>
             ${msg.setor ? `<span class="setor">${escapeHtml(msg.setor)}</span>` : ''}
