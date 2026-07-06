@@ -62,7 +62,7 @@ main{max-width:none;width:100%;margin:0}
 .card .setor{font-size:9px;color:#90a4ae}
 .card .time{font-size:9px;color:#90a4ae;flex-shrink:0}
 
-.cta-wrap{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5}
+.cta-wrap{flex:0 0 auto}
 .cta{background:var(--escuro);color:var(--verde);font-weight:800;border:none;cursor:pointer;padding:14px 30px;border-radius:999px;font-size:13px;letter-spacing:1px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease}
 .cta:hover{transform:scale(1.04)}
 
@@ -99,6 +99,9 @@ main{max-width:none;width:100%;margin:0}
     <img src="logo.png" alt="ASTROCOPA" class="logo-img">
   </div>
   <h1 class="var-title">VAR</h1>
+  <div class="cta-wrap">
+    <button id="cta-btn" class="cta" type="button">📣 Enviar minha mensagem</button>
+  </div>
 </div>
 
 <div id="demo-banner" class="demo-banner" style="display:none;">
@@ -126,10 +129,6 @@ main{max-width:none;width:100%;margin:0}
     </div>
   </div>
 </main>
-
-<div class="cta-wrap">
-  <button id="cta-btn" class="cta" type="button">📣 Enviar minha mensagem</button>
-</div>
 
 <div id="modal-overlay" class="modal-overlay">
   <div class="modal-box">
