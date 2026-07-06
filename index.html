@@ -418,6 +418,8 @@ function renderGrid(messages){
   gridEl.innerHTML = messages.map((msg,i) => {
     const c = avColor(i);
     const borderColor = BORDER_COLORS[i % BORDER_COLORS.length];
+    const remetente = colabPorNome[(msg.nome||'').trim().toLowerCase()];
+    const setorRemetente = remetente ? remetente.setor : '';
     return `<div class="card" style="border-top-color:${borderColor}">
       <div class="dest"><span class="lbl">Para</span>${escapeHtml(msg.destinatario || 'Equipe')}${msg.setor ? `<span class="dest-setor">${escapeHtml(msg.setor)}</span>` : ''}</div>
       <p class="msg">${escapeHtml(msg.mensagem || '')}</p>
@@ -425,6 +427,7 @@ function renderGrid(messages){
         <div class="sender">
           <div class="who">
             <span class="de-line"><span class="de-lbl">De</span><span class="nome">${escapeHtml(msg.nome || 'Anônimo')}</span></span>
+            ${setorRemetente ? `<span class="setor">${escapeHtml(setorRemetente)}</span>` : ''}
           </div>
         </div>
         <span class="time">${formatTime(msg.timestamp)}</span>
