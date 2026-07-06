@@ -89,6 +89,16 @@ main{max-width:none;width:100%;margin:0}
 .success-title{font-size:17px;font-weight:800;color:#1b5e20;margin-bottom:8px}
 .success-text{font-size:13px;color:#455a64;margin-bottom:18px;line-height:1.55}
 .link-btn{display:block;width:100%;text-align:center;background:none;border:none;color:var(--azul);font-size:12px;font-weight:700;cursor:pointer;margin-top:12px;text-decoration:underline}
+
+/* autocompletar customizado (mostra so o que combina com a digitacao) */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;left:0;right:0;top:calc(100% + 3px);z-index:20;background:#fff;border:1px solid #cfd8dc;border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.18);max-height:190px;overflow-y:auto;display:none}
+.ac-list.open{display:block}
+.ac-item{padding:9px 12px;font-size:13px;color:#1a1a1a;cursor:pointer;border-bottom:1px solid #eef2f1}
+.ac-item:last-child{border-bottom:none}
+.ac-item small{color:#5a8f7a;font-size:11px}
+.ac-item:hover,.ac-item.active{background:#e3f9ea}
+.ac-empty{padding:9px 12px;font-size:12px;color:#90a4ae}
 </style>
 </head>
 <body>
@@ -142,17 +152,22 @@ main{max-width:none;width:100%;margin:0}
       <form id="msg-form" autocomplete="off">
         <div class="field">
           <label for="f-nome">Seu nome e sobrenome *</label>
-          <input id="f-nome" name="nome" type="text" list="lista-colabs" maxlength="100" placeholder="Comece a digitar e escolha da lista" autocomplete="off" required>
+          <div class="ac-wrap">
+            <input id="f-nome" name="nome" type="text" maxlength="100" placeholder="Comece a digitar seu nome..." autocomplete="off" required>
+            <div class="ac-list" id="ac-nome"></div>
+          </div>
         </div>
         <div class="field">
           <label for="f-destinatario">Nome e sobrenome do destinatário *</label>
-          <input id="f-destinatario" name="destinatario" type="text" list="lista-colabs" maxlength="100" placeholder="Comece a digitar e escolha da lista" autocomplete="off" required>
+          <div class="ac-wrap">
+            <input id="f-destinatario" name="destinatario" type="text" maxlength="100" placeholder="Comece a digitar o nome..." autocomplete="off" required>
+            <div class="ac-list" id="ac-dest"></div>
+          </div>
         </div>
         <div class="field">
           <label for="f-setor">Setor do destinatário</label>
           <input id="f-setor" name="setor" type="text" maxlength="100" placeholder="Preenche sozinho ao escolher o destinatário" readonly>
         </div>
-        <datalist id="lista-colabs"></datalist>
         <div class="field">
           <label for="f-mensagem">Mensagem *</label>
           <textarea id="f-mensagem" name="mensagem" rows="4" maxlength="500" required></textarea>
@@ -221,21 +236,60 @@ const COLABS = (window.COLABORADORES || []).map(c => ({ nome: c[0], setor: c[1] 
 const colabPorNome = {};
 COLABS.forEach(c => { colabPorNome[c.nome.toLowerCase()] = c; });
 
-(function preencherDatalist(){
-  const dl = document.getElementById('lista-colabs');
-  if (!dl) return;
-  dl.innerHTML = COLABS.map(c => `<option value="${c.nome.replace(/"/g,'&quot;')}"></option>`).join('');
-})();
-
 function nomeValido(v){ return !!colabPorNome[(v||'').trim().toLowerCase()]; }
+function normNome(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[^\x00-\x7F]/g,''); }
 
-// ao escolher/digitar o destinatário, preenche o setor automaticamente
 function atualizarSetor(){
   const c = colabPorNome[(destInput.value||'').trim().toLowerCase()];
   setorInput.value = c ? c.setor : '';
 }
+
+/* autocompletar: so mostra sugestoes conforme o que a pessoa digita */
+function setupAutocomplete(input, listEl, onPick){
+  let activeIdx = -1, matches = [];
+  function close(){ listEl.classList.remove('open'); listEl.innerHTML=''; activeIdx=-1; matches=[]; }
+  function render(){
+    const term = normNome(input.value.trim());
+    if (term.length < 1){ close(); return; }
+    matches = COLABS.filter(c => {
+      const n = normNome(c.nome);
+      return n.startsWith(term) || n.split(/\s+/).some(w => w.startsWith(term));
+    }).slice(0, 8);
+    if (!matches.length){
+      listEl.innerHTML = '<div class="ac-empty">Nenhum colaborador encontrado</div>';
+      listEl.classList.add('open'); activeIdx=-1; return;
+    }
+    listEl.innerHTML = matches.map((c,i) =>
+      `<div class="ac-item" data-i="${i}">${escapeHtml(c.nome)}${c.setor?` <small>· ${escapeHtml(c.setor)}</small>`:''}</div>`
+    ).join('');
+    listEl.classList.add('open'); activeIdx=-1;
+  }
+  function pick(c){ input.value = c.nome; close(); if (onPick) onPick(c); }
+  input.addEventListener('input', render);
+  input.addEventListener('focus', () => { if (input.value.trim()) render(); });
+  input.addEventListener('keydown', (e) => {
+    if (!listEl.classList.contains('open') || !matches.length) return;
+    if (e.key === 'ArrowDown'){ e.preventDefault(); activeIdx=Math.min(activeIdx+1,matches.length-1); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); activeIdx=Math.max(activeIdx-1,0); }
+    else if (e.key === 'Enter'){ if (activeIdx>=0){ e.preventDefault(); pick(matches[activeIdx]); return; } }
+    else if (e.key === 'Escape'){ close(); return; }
+    else return;
+    [...listEl.children].forEach((el,i)=>el.classList.toggle('active', i===activeIdx));
+    if (activeIdx>=0) listEl.children[activeIdx].scrollIntoView({block:'nearest'});
+  });
+  listEl.addEventListener('mousedown', (e) => {
+    const item = e.target.closest('.ac-item');
+    if (!item) return;
+    e.preventDefault();
+    pick(matches[+item.dataset.i]);
+  });
+  input.addEventListener('blur', () => setTimeout(close, 150));
+}
+
+setupAutocomplete(nomeInput, document.getElementById('ac-nome'));
+setupAutocomplete(destInput, document.getElementById('ac-dest'), atualizarSetor);
+// se editar o destinatario manualmente, mantem o setor coerente
 destInput.addEventListener('input', atualizarSetor);
-destInput.addEventListener('change', atualizarSetor);
 
 /* ---- estrelas douradas cintilantes (decorativo, gerado uma vez) ---- */
 (function spawnStars(){
